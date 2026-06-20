@@ -1,0 +1,234 @@
+<div class="login-shell">
+    <!-- Left panel -->
+    <div class="login-brand">
+        <div class="brand-inner">
+            <div class="logo-mark">
+                <span class="material-icons">bolt</span>
+            </div>
+            <h1>TaskFlow</h1>
+            <p>The focused workspace for teams that ship.</p>
+
+            <div class="feature-list">
+                <div class="feature-item">
+                    <span class="material-icons">check_circle</span>
+                    Track tasks across every stage
+                </div>
+                <div class="feature-item">
+                    <span class="material-icons">check_circle</span>
+                    Filter, sort and paginate with ease
+                </div>
+                <div class="feature-item">
+                    <span class="material-icons">check_circle</span>
+                    Secured with JWT authentication
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right panel -->
+    <div class="login-form-panel">
+        <div class="login-card">
+            <div class="login-header">
+                <h2>Welcome back</h2>
+                <p>Sign in to your workspace</p>
+            </div>
+
+            <div class="form-group">
+                <label>Username</label>
+                <div class="input-wrap">
+                    <span class="material-icons input-icon">person</span>
+                    <input
+                            type="text"
+                            placeholder="Enter username"
+                            [(ngModel)]="username"
+                            (keyup.enter)="submit()"
+                            class="has-icon"
+                    />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <div class="input-wrap">
+                    <span class="material-icons input-icon">lock</span>
+                    <input
+                            [type]="showPass() ? 'text' : 'password'"
+                            placeholder="Enter password"
+                            [(ngModel)]="password"
+                            (keyup.enter)="submit()"
+                            class="has-icon has-icon-right"
+                    />
+                    <button class="toggle-pass" type="button" (click)="showPass.set(!showPass())">
+                        <span class="material-icons">{{ showPass() ? 'visibility_off' : 'visibility' }}</span>
+                    </button>
+                </div>
+            </div>
+
+            @if (error()) {
+                <div class="alert-error">
+                    <span class="material-icons">error_outline</span>
+                    {{ error() }}
+                </div>
+            }
+
+            <button class="btn btn-primary login-btn" (click)="submit()" [disabled]="loading()">
+                @if (loading()) {
+                    <span class="spinner-sm"></span> Signing in…
+                } @else {
+                    <span class="material-icons">login</span> Sign in
+                }
+            </button>
+
+            <p class="hint-text">Demo credentials: <strong>admin</strong> / <strong>admin123</strong></p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .login-shell {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .login-brand {
+        flex: 1;
+        background: linear-gradient(135deg, #161a23 0%, #1a1040 100%);
+        border-right: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 48px;
+    }
+
+    .brand-inner {
+        max-width: 360px;
+    }
+
+    .logo-mark {
+        width: 56px; height: 56px;
+        background: var(--accent);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 32px var(--accent-glow);
+        margin-bottom: 28px;
+        .material-icons { color: #fff; font-size: 28px; }
+    }
+
+    .login-brand h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--text-1);
+        margin-bottom: 10px;
+    }
+
+    .login-brand > .brand-inner > p {
+        color: var(--text-2);
+        font-size: 1rem;
+        margin-bottom: 40px;
+    }
+
+    .feature-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text-2);
+        font-size: 0.9rem;
+        .material-icons { color: var(--success); font-size: 18px; }
+    }
+
+    .login-form-panel {
+        flex: 0 0 480px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 32px;
+        background: var(--bg);
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 380px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .login-header h2 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-1);
+        margin-bottom: 6px;
+    }
+    .login-header p { color: var(--text-2); font-size: 0.9rem; }
+
+    .input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    .input-icon {
+        position: absolute;
+        left: 12px;
+        color: var(--text-3);
+        font-size: 18px;
+        pointer-events: none;
+    }
+    .input-wrap input.has-icon { padding-left: 40px; }
+    .input-wrap input.has-icon-right { padding-right: 44px; }
+    .toggle-pass {
+        position: absolute; right: 10px;
+        background: none; border: none;
+        cursor: pointer; color: var(--text-3);
+        display: flex; align-items: center;
+        transition: color 0.2s;
+        &:hover { color: var(--text-1); }
+    }
+
+    .alert-error {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(244, 63, 94, 0.1);
+        border: 1px solid rgba(244, 63, 94, 0.3);
+        border-radius: var(--radius);
+        padding: 10px 14px;
+        font-size: 0.875rem;
+        color: var(--danger);
+        .material-icons { font-size: 18px; }
+    }
+
+    .login-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 12px;
+        font-size: 0.9375rem;
+    }
+
+    .spinner-sm {
+        width: 16px; height: 16px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+    }
+
+    .hint-text {
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--text-3);
+        strong { color: var(--text-2); }
+    }
+
+    @media (max-width: 768px) {
+        .login-brand { display: none; }
+        .login-form-panel { flex: 1; }
+    }
+</style>

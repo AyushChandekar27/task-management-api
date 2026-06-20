@@ -1,0 +1,434 @@
+<div class="shell">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <span class="material-icons logo-icon">bolt</span>
+            <span class="logo-text">TaskFlow</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item active" routerLink="/tasks">
+                <span class="material-icons">view_list</span>
+                All Tasks
+                <span class="nav-count">{{ totalItems() }}</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-chip">
+                <div class="avatar">{{ auth.username().charAt(0).toUpperCase() }}</div>
+                <span class="username">{{ auth.username() }}</span>
+            </div>
+            <button class="btn btn-icon" (click)="auth.logout()" title="Sign out">
+                <span class="material-icons">logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+        <!-- Header -->
+        <header class="page-header">
+            <div>
+                <h1>Tasks</h1>
+                <p class="sub">{{ totalItems() }} total · Page {{ page() + 1 }} of {{ totalPages() }}</p>
+            </div>
+            <button class="btn btn-primary" routerLink="/tasks/new">
+                <span class="material-icons">add</span>
+                New Task
+            </button>
+        </header>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+            <div class="filter-group">
+                <span class="material-icons filter-icon">filter_list</span>
+                <select [(ngModel)]="statusFilter" (ngModelChange)="applyFilter()" class="filter-select">
+                    <option value="">All statuses</option>
+                    <option value="TODO">To Do</option>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="DONE">Done</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <span class="material-icons filter-icon">sort</span>
+                <select [(ngModel)]="sortBy" (ngModelChange)="applyFilter()" class="filter-select">
+                    <option value="createdAt">Date created</option>
+                    <option value="title">Title</option>
+                    <option value="status">Status</option>
+                </select>
+                <select [(ngModel)]="sortDir" (ngModelChange)="applyFilter()" class="filter-select">
+                    <option value="desc">Newest first</option>
+                    <option value="asc">Oldest first</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Table / Loading / Empty -->
+        @if (loading()) {
+            <div class="center-block">
+                <div class="spinner"></div>
+            </div>
+        } @else if (tasks().length === 0) {
+            <div class="empty-state card">
+                <span class="material-icons">inbox</span>
+                <h3>No tasks found</h3>
+                <p>Add your first task to get started.</p>
+                <button class="btn btn-primary" routerLink="/tasks/new">
+                    <span class="material-icons">add</span> New Task
+                </button>
+            </div>
+        } @else {
+            <div class="table-wrap card">
+                <table class="task-table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th class="hide-mobile">Description</th>
+                        <th>Status</th>
+                        <th class="hide-mobile">Created</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        @for (task of tasks(); track task.id) {
+                            <tr class="task-row">
+                                <td class="id-cell">{{ task.id }}</td>
+                                <td class="title-cell">{{ task.title }}</td>
+                                <td class="desc-cell hide-mobile">{{ task.description || '—' }}</td>
+                                <td>
+                  <span class="badge" [ngClass]="badgeClass(task.status)">
+                    <span class="material-icons" style="font-size:13px">{{ badgeIcon(task.status) }}</span>
+                      {{ task.status === 'IN_PROGRESS' ? 'In Progress' : task.status === 'TODO' ? 'To Do' : 'Done' }}
+                  </span>
+                                </td>
+                                <td class="date-cell hide-mobile">{{ formatDate(task.createdAt) }}</td>
+                                <td class="actions-cell">
+                                    <button class="btn btn-icon" (click)="edit(task.id)" title="Edit">
+                                        <span class="material-icons">edit</span>
+                                    </button>
+                                    <button
+                                            class="btn btn-icon danger-icon"
+                                            (click)="delete(task.id)"
+                                            [disabled]="deleting() === task.id"
+                                            title="Delete"
+                                    >
+                                        @if (deleting() === task.id) {
+                                            <span class="spinner-xs"></span>
+                                        } @else {
+                                            <span class="material-icons">delete_outline</span>
+                                        }
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            @if (totalPages() > 1) {
+                <div class="pagination">
+                    <button class="btn btn-ghost pg-btn" (click)="goPage(page() - 1)" [disabled]="page() === 0">
+                        <span class="material-icons">chevron_left</span>
+                    </button>
+                    @for (p of pages(); track p) {
+                        <button
+                                class="btn pg-btn"
+                                [class.pg-active]="p === page()"
+                                (click)="goPage(p)"
+                        >{{ p + 1 }}</button>
+                    }
+                    <button class="btn btn-ghost pg-btn" (click)="goPage(page() + 1)" [disabled]="page() === totalPages() - 1">
+                        <span class="material-icons">chevron_right</span>
+                    </button>
+                </div>
+            }
+        }
+    </main>
+</div>
+
+<!-- Toasts -->
+<div class="toast-container">
+    @for (t of toasts(); track t.id) {
+        <div class="toast" [class.success]="t.type==='success'" [class.error]="t.type==='error'">
+      <span class="material-icons" style="font-size:18px">
+        {{ t.type === 'success' ? 'check_circle' : 'error_outline' }}
+      </span>
+            {{ t.message }}
+        </div>
+    }
+</div>
+
+<style>
+    .shell {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 240px;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        padding: 24px 0;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 20px 28px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 16px;
+    }
+
+    .logo-icon {
+        color: var(--accent);
+        font-size: 24px;
+    }
+    .logo-text {
+        font-family: var(--font-display);
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text-1);
+    }
+
+    .sidebar-nav { flex: 1; padding: 0 12px; }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: var(--radius);
+        color: var(--text-2);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s;
+
+        .material-icons { font-size: 20px; }
+
+        &.active, &:hover {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+    }
+
+    .nav-count {
+        margin-left: auto;
+        background: var(--accent-dim);
+        color: var(--accent);
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 2px 7px;
+        border-radius: 100px;
+    }
+
+    .sidebar-footer {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 16px 20px 0;
+        border-top: 1px solid var(--border);
+        margin-top: 16px;
+    }
+
+    .user-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .avatar {
+        width: 32px; height: 32px;
+        background: var(--accent);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #fff;
+        flex-shrink: 0;
+    }
+
+    .username {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-1);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Main */
+    .main {
+        flex: 1;
+        padding: 32px;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .page-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-1); }
+        .sub { color: var(--text-3); font-size: 0.85rem; margin-top: 3px; }
+    }
+
+    /* Filters */
+    .filters-bar {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .filter-icon { color: var(--text-3); font-size: 18px; }
+
+    .filter-select {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text-1);
+        font-family: var(--font-body);
+        font-size: 0.875rem;
+        padding: 8px 12px;
+        outline: none;
+        cursor: pointer;
+        appearance: none;
+        min-width: 140px;
+        transition: border-color 0.2s;
+        &:focus { border-color: var(--accent); }
+    }
+
+    .center-block {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 80px;
+    }
+
+    /* Table */
+    .table-wrap { padding: 0; overflow: hidden; }
+
+    .task-table {
+        width: 100%;
+        border-collapse: collapse;
+
+        th {
+            background: var(--surface-2);
+            color: var(--text-3);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-1);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        tbody tr:last-child td { border-bottom: none; }
+    }
+
+    .task-row {
+        transition: background 0.15s;
+        &:hover { background: var(--surface-2); }
+    }
+
+    .id-cell    { color: var(--text-3); font-size: 0.8rem; width: 48px; }
+    .title-cell { font-weight: 500; max-width: 200px; }
+    .desc-cell  { color: var(--text-2); max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .date-cell  { color: var(--text-2); font-size: 0.85rem; white-space: nowrap; }
+
+    .actions-cell {
+        display: flex;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .danger-icon {
+        &:hover {
+            background: rgba(244, 63, 94, 0.1) !important;
+            color: var(--danger) !important;
+            border-color: rgba(244, 63, 94, 0.3) !important;
+        }
+    }
+
+    .spinner-xs {
+        width: 14px; height: 14px;
+        border: 2px solid var(--border);
+        border-top-color: var(--danger);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+    }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        justify-content: center;
+    }
+
+    .pg-btn {
+        min-width: 36px;
+        height: 36px;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text-2);
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: all 0.2s;
+        &:hover:not(:disabled) { background: var(--surface-2); color: var(--text-1); }
+        &:disabled { opacity: 0.4; cursor: not-allowed; }
+    }
+
+    .pg-active {
+        background: var(--accent) !important;
+        color: #fff !important;
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    @media (max-width: 768px) {
+        .sidebar { display: none; }
+        .main { padding: 20px 16px; }
+        .page-header h1 { font-size: 1.4rem; }
+    }
+</style>

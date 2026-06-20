@@ -1,0 +1,205 @@
+<div class="form-shell">
+    <div class="form-container">
+        <!-- Back -->
+        <a class="back-link" routerLink="/tasks">
+            <span class="material-icons">arrow_back</span>
+            Back to Tasks
+        </a>
+
+        <div class="form-card card">
+            <!-- Title -->
+            <div class="form-card-header">
+                <div class="form-icon">
+                    <span class="material-icons">{{ isEdit() ? 'edit_note' : 'add_task' }}</span>
+                </div>
+                <div>
+                    <h2>{{ isEdit() ? 'Edit Task' : 'New Task' }}</h2>
+                    <p>{{ isEdit() ? 'Update the task details below.' : 'Fill in the details to create a task.' }}</p>
+                </div>
+            </div>
+
+            @if (fetching()) {
+                <div class="center-block"><div class="spinner"></div></div>
+            } @else {
+                <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+                    <div class="form-group">
+                        <label for="title">Title <span class="required">*</span></label>
+                        <input
+                                id="title"
+                                type="text"
+                                formControlName="title"
+                                placeholder="What needs to be done?"
+                        />
+                        @if (f['title'].invalid && f['title'].touched) {
+                            <span class="error-msg">
+                <span class="material-icons" style="font-size:14px">error</span>
+                Title is required (min 2 characters)
+              </span>
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea
+                                id="description"
+                                formControlName="description"
+                                placeholder="Add more details (optional)…"
+                                rows="4"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status">Status <span class="required">*</span></label>
+                        <div class="select-wrap">
+                            <select id="status" formControlName="status">
+                                <option value="TODO">To Do</option>
+                                <option value="IN_PROGRESS">In Progress</option>
+                                <option value="DONE">Done</option>
+                            </select>
+                            <span class="material-icons select-arrow">expand_more</span>
+                        </div>
+                    </div>
+
+                    @if (error()) {
+                        <div class="alert-error">
+                            <span class="material-icons">error_outline</span>
+                            {{ error() }}
+                        </div>
+                    }
+
+                    <div class="form-actions">
+                        <a class="btn btn-ghost" routerLink="/tasks">Cancel</a>
+                        <button class="btn btn-primary" type="submit" [disabled]="loading()">
+                            @if (loading()) {
+                                <span class="spinner-sm"></span>
+                                {{ isEdit() ? 'Saving…' : 'Creating…' }}
+                            } @else {
+                                <span class="material-icons">{{ isEdit() ? 'save' : 'add' }}</span>
+                                {{ isEdit() ? 'Save Changes' : 'Create Task' }}
+                            }
+                        </button>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-shell {
+        min-height: 100vh;
+        background: var(--bg);
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+
+    .form-container {
+        width: 100%;
+        max-width: 560px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--text-2);
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: color 0.2s;
+        .material-icons { font-size: 18px; }
+        &:hover { color: var(--text-1); }
+    }
+
+    .form-card {
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+    }
+
+    .form-card-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+
+        h2 { font-size: 1.4rem; font-weight: 700; color: var(--text-1); }
+        p  { color: var(--text-2); font-size: 0.875rem; margin-top: 3px; }
+    }
+
+    .form-icon {
+        width: 48px; height: 48px;
+        background: var(--accent-dim);
+        border: 1px solid rgba(108, 99, 255, 0.3);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        .material-icons { color: var(--accent); font-size: 24px; }
+    }
+
+    .required { color: var(--danger); margin-left: 2px; }
+
+    .select-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+        select { padding-right: 40px; }
+    }
+    .select-arrow {
+        position: absolute;
+        right: 12px;
+        color: var(--text-3);
+        font-size: 20px;
+        pointer-events: none;
+    }
+
+    .alert-error {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(244, 63, 94, 0.1);
+        border: 1px solid rgba(244, 63, 94, 0.3);
+        border-radius: var(--radius);
+        padding: 10px 14px;
+        font-size: 0.875rem;
+        color: var(--danger);
+        .material-icons { font-size: 18px; }
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        padding-top: 8px;
+    }
+
+    .spinner-sm {
+        width: 16px; height: 16px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+    }
+
+    .center-block {
+        display: flex;
+        justify-content: center;
+        padding: 60px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 600px) {
+        .form-actions { flex-direction: column-reverse; }
+        .form-actions .btn { width: 100%; justify-content: center; }
+    }
+</style>

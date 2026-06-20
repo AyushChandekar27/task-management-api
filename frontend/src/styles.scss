@@ -1,0 +1,245 @@
+/* ─── Design Tokens ─────────────────────────────────────────── */
+:root {
+  --bg:          #0d0f14;
+  --surface:     #161a23;
+  --surface-2:   #1e2330;
+  --border:      #2a3045;
+  --accent:      #6c63ff;
+  --accent-glow: rgba(108, 99, 255, 0.25);
+  --accent-dim:  rgba(108, 99, 255, 0.12);
+  --text-1:      #eef0f7;
+  --text-2:      #8b92a9;
+  --text-3:      #555d77;
+  --success:     #22d3a5;
+  --warn:        #f59e0b;
+  --danger:      #f43f5e;
+  --todo-bg:     rgba(85, 93, 119, 0.15);
+  --todo-fg:     #8b92a9;
+  --prog-bg:     rgba(245, 158, 11, 0.12);
+  --prog-fg:     #f59e0b;
+  --done-bg:     rgba(34, 211, 165, 0.12);
+  --done-fg:     #22d3a5;
+  --radius:      10px;
+  --radius-lg:   16px;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body:    'Inter', sans-serif;
+}
+.material-icons {
+  font-family: 'Material Icons' !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+/* ─── Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; }
+
+body {
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ─── Typography ─────────────────────────────────────────────── */
+h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.2; }
+
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ─── Shared Components ─────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  border: none;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &-primary {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 20px var(--accent-glow);
+    &:hover { background: #7d75ff; box-shadow: 0 0 28px var(--accent-glow); transform: translateY(-1px); }
+  }
+
+  &-ghost {
+    background: transparent;
+    color: var(--text-2);
+    border: 1px solid var(--border);
+    &:hover { background: var(--surface-2); color: var(--text-1); }
+  }
+
+  &-danger {
+    background: rgba(244, 63, 94, 0.12);
+    color: var(--danger);
+    border: 1px solid rgba(244, 63, 94, 0.25);
+    &:hover { background: rgba(244, 63, 94, 0.2); }
+  }
+
+  &-icon {
+    padding: 8px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s;
+    &:hover { background: var(--surface-2); color: var(--text-1); }
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  input, textarea, select {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-1);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    padding: 10px 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    width: 100%;
+    &::placeholder { color: var(--text-3); }
+    &:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    &.ng-invalid.ng-touched {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.12);
+    }
+  }
+
+  textarea { resize: vertical; min-height: 90px; }
+  select { appearance: none; cursor: pointer; }
+
+  .error-msg {
+    font-size: 0.78rem;
+    color: var(--danger);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+
+  &-todo     { background: var(--todo-bg); color: var(--todo-fg); }
+  &-progress { background: var(--prog-bg); color: var(--prog-fg); }
+  &-done     { background: var(--done-bg); color: var(--done-fg); }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 64px 24px;
+  color: var(--text-3);
+  text-align: center;
+
+  .material-icons { font-size: 48px; opacity: 0.4; }
+  p { font-size: 0.9rem; }
+}
+
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── Toast ─────────────────────────────────────────────────── */
+.toast-container {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  font-size: 0.875rem;
+  color: var(--text-1);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  animation: slideUp 0.25s ease;
+
+  &.success { border-left: 3px solid var(--success); }
+  &.error   { border-left: 3px solid var(--danger); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hide-mobile { display: none !important; }
+}
