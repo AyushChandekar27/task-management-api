@@ -1,0 +1,20 @@
+# IntelliJ
+.idea/
+
+# Maven
+backend/target/
+
+# Angular
+frontend/node_modules/
+frontend/.angular/
+frontend/dist/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
